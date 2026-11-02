@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List - Study Edition</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: #f4f6fb;
+            color: #263248;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 245px;
+            background: #17243b;
+            color: white;
+            padding: 28px 20px;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            margin-bottom: 40px;
+        }
+
+        .logo span {
+            color: #72a7ff;
+        }
+
+        .sidebar h4 {
+            color: #8998b1;
+            font-size: 12px;
+            margin: 25px 10px 12px;
+        }
+
+        .nav-item {
+            padding: 13px 12px;
+            border-radius: 8px;
+            margin-bottom: 7px;
+            cursor: pointer;
+            color: #d5deec;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: #30496f;
+            color: white;
+        }
+
+        /* MAIN */
+
+        .main {
+            flex: 1;
+            padding: 35px;
+            min-width: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 27px;
+        }
+
+        .header p {
+            color: #8290a5;
+            margin-top: 7px;
+        }
+
+        .btn {
+            border: none;
+            background: #3979ed;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background: #245fc9;
+        }
+
+        /* STATISTICS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px #17243b08;
+        }
+
+        .stat-card p {
+            color: #8290a5;
+            font-size: 14px;
+        }
+
+        .stat-card h2 {
+            font-size: 28px;
+            margin-top: 12px;
+        }
+
+        /* TOOLBAR */
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar input,
+        .toolbar select {
+            padding: 11px;
+            border: 1px solid #dce2ed;
+            border-radius: 8px;
+            background: white;
+            outline: none;
+        }
+
+        .toolbar input {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        /* TASK LIST */
+
+        .task-list {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .task-list h3 {
+            margin-bottom: 20px;
+        }
+
+        .task {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 17px 5px;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .task:last-child {
+            border-bottom: none;
+        }
+
+        .task-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .task-info h4 {
+            margin-bottom: 7px;
+            overflow-wrap: anywhere;
+        }
+
+        .task-info p {
+            color: #8995a8;
+            font-size: 12px;
+        }
+
+        .completed h4 {
+            text-decoration: line-through;
+            color: #a0aabb;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 7px;
+        }
+
+        .small-btn {
+            border: none;
+            padding: 7px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            background: #edf3ff;
+            color: #3979ed;
+        }
+
+        .delete-btn {
+            background: #fff0f0;
+            color: #e34c4c;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 20px;
+            margin-right: 5px;
+            background: #edf3ff;
+            color: #3979ed;
+        }
+
+        .priority-high {
+            background: #ffe9e9;
+            color: #dc4444;
+        }
+
+        .priority-medium {
+            background: #fff3dd;
+            color: #bc831b;
+        }
+
+        .priority-low {
+            background: #e4f7eb;
+            color: #278a4e;
+        }
+
+        /* MODAL */
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #0008;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            z-index: 10;
+        }
+
+        .modal-content {
+            background: white;
+            width: 440px;
+            max-width: 100%;
+            padding: 25px;
+            border-radius: 14px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .modal-content input,
+        .modal-content select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 13px;
+            border: 1px solid #dce2ed;
+            border-radius: 7px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .cancel-btn {
+            background: #e9edf4;
+            color: #34445c;
+        }
+
+        .empty {
+            text-align: center;
+            color: #96a1b2;
+            padding: 40px 10px;
+        }
+
+        @media(max-width: 900px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width: 600px) {
+            .sidebar {
+                display: none;
+            }
+
+            .main {
+                padding: 20px 12px;
+            }
+
+            .header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .task {
+                align-items: flex-start;
+            }
+
+            .task-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <aside class="sidebar">
+            <div class="logo">Todo<span>Study</span></div>
+
+            <h4>WORKSPACE</h4>
+
+            <div class="nav-item active" data-filter="all">
+                Tổng quan
+            </div>
+
+            <div class="nav-item" data-filter="backlog">
+                Product Backlog
+            </div>
+
+            <div class="nav-item" data-filter="todo">
+                To Do
+            </div>
+
+            <div class="nav-item" data-filter="progress">
+                In Progress
+            </div>
+
+            <div class="nav-item" data-filter="done">
+                Done
+            </div>
+        </aside>
+
+        <main class="main">
+
+            <header class="header">
+                <div>
+                    <h1>Quản lý công việc</h1>
+                    <p>Không gian học tập và quản lý nhiệm vụ của bạn.</p>
+                </div>
+
+                <button class="btn" onclick="openModal()">
+                    + Thêm công việc
+                </button>
+            </header>
+
+            <section class="stats">
+
+                <div class="stat-card">
+                    <p>Tổng công việc</p>
+                    <h2 id="total">0</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Product Backlog</p>
+                    <h2 id="backlogCount">0</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Đang thực hiện</p>
+                    <h2 id="progressCount">0</h2>
+                </div>
+
+                <div class="stat-card">
+                    <p>Đã hoàn thành</p>
+                    <h2 id="doneCount">0</h2>
+                </div>
+
+            </section>
+
+            <section class="toolbar">
+
+                <input type="text" id="search" placeholder="Tìm kiếm công việc...">
+
+                <select id="statusFilter">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="backlog">Product Backlog</option>
+                    <option value="todo">To Do</option>
+                    <option value="progress">In Progress</option>
+                    <option value="done">Done</option>
+                </select>
+
+                <select id="priorityFilter">
+                    <option value="all">Tất cả ưu tiên</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+
+            </section>
+
+            <section class="task-list">
+
+                <h3 id="listTitle">Danh sách công việc</h3>
+
+                <div id="tasks"></div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- MODAL -->
+
+    <div class="modal" id="modal">
+
+        <div class="modal-content">
+
+            <h2 id="modalTitle">Thêm công việc</h2>
+
+            <input type="text" id="taskName" placeholder="Tên công việc">
+
+            <input type="text" id="taskDescription" placeholder="Mô tả công việc">
+
+            <select id="taskStatus">
+                <option value="backlog">Product Backlog</option>
+                <option value="todo">To Do</option>
+                <option value="progress">In Progress</option>
+                <option value="done">Done</option>
+            </select>
+
+            <select id="taskPriority">
+                <option value="low">Low - Thấp</option>
+                <option value="medium">Medium - Trung bình</option>
+                <option value="high">High - Cao</option>
+            </select>
+
+            <input type="date" id="taskDeadline">
+
+            <div class="modal-actions">
+
+                <button class="btn cancel-btn" onclick="closeModal()">
+                    Hủy
+                </button>
+
+                <button class="btn" onclick="saveTask()">
+                    Lưu công việc
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // ================================
+        // 1. DATA
+        // ================================
+
+        const STORAGE_KEY = "todoStudyTasks";
+
+        const sampleTasks = [
+            {
+                id: 1,
+                name: "Hoàn thành bài tập Python",
+                description: "Ôn tập cấu trúc dữ liệu",
+                status: "done",
+                priority: "medium",
+                deadline: "2026-11-03"
+            },
+            {
+                id: 2,
+                name: "Thiết kế giao diện Todo List",
+                description: "Xây dựng giao diện chính",
+                status: "progress",
+                priority: "high",
+                deadline: "2026-11-05"
+            },
+            {
+                id: 3,
+                name: "Ôn tập hệ cơ sở dữ liệu",
+                description: "Ôn tập khóa và các mối quan hệ",
+                status: "todo",
+                priority: "medium",
+                deadline: "2026-11-06"
+            },
+            {
+                id: 4,
+                name: "Hoàn thành báo cáo CNPM",
+                description: "Viết báo cáo thực hành",
+                status: "backlog",
+                priority: "low",
+                deadline: "2026-11-10"
+            }
+        ];
+
+        let tasks = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+        if (!Array.isArray(tasks)) {
+            tasks = sampleTasks;
+            saveData();
+        }
+
+        let editingId = null;
+        let currentFilter = "all";
+
+        // ================================
+        // 2. SAVE DATA
+        // ================================
+
+        function saveData() {
+            localStorage.setItem(
+                STORAGE_KEY,
+                JSON.stringify(tasks)
+            );
+        }
+
+        // ================================
+        // 3. STATISTICS
+        // ================================
+
+        function updateStats() {
+
+            document.getElementById("total").textContent =
+                tasks.length;
+
+            document.getElementById("backlogCount").textContent =
+                tasks.filter(t => t.status === "backlog").length;
+
+            document.getElementById("progressCount").textContent =
+                tasks.filter(t => t.status === "progress").length;
+
+            document.getElementById("doneCount").textContent =
+                tasks.filter(t => t.status === "done").length;
+        }
+
+        // ================================
+        // 4. DISPLAY TASKS
+        // ================================
+
+        function renderTasks() {
+
+            const container = document.getElementById("tasks");
+
+            const keyword = document
+                .getElementById("search")
+                .value.toLowerCase();
+
+            const status = document
+                .getElementById("statusFilter").value;
+
+            const priority = document
+                .getElementById("priorityFilter").value;
+
+            const filtered = tasks.filter(task => {
+
+                const matchName =
+                    task.name.toLowerCase().includes(keyword);
+
+                const matchStatus =
+                    status === "all" || task.status === status;
+
+                const matchPriority =
+                    priority === "all" || task.priority === priority;
+
+                const matchSidebar =
+                    currentFilter === "all" ||
+                    task.status === currentFilter;
+
+                return matchName &&
+                    matchStatus &&
+                    matchPriority &&
+                    matchSidebar;
+            });
+
+            container.innerHTML = "";
+
+            if (filtered.length === 0) {
+
+                container.innerHTML =
+                    '<div class="empty">Không tìm thấy công việc nào.</div>';
+
+                updateStats();
+                return;
+            }
+
+            filtered.forEach(task => {
+
+                const statusName = {
+                    backlog: "Product Backlog",
+                    todo: "To Do",
+                    progress: "In Progress",
+                    done: "Done"
+                };
+
+                const priorityName = {
+                    high: "High",
+                    medium: "Medium",
+                    low: "Low"
+                };
+
+                const div = document.createElement("div");
+
+                div.className =
+                    "task " +
+                    (task.status === "done" ? "completed" : "");
+
+                const info = document.createElement("div");
+                info.className = "task-info";
+
+                const heading = document.createElement("h4");
+                heading.textContent = task.name;
+
+                const description = document.createElement("p");
+                description.textContent =
+                    (task.description || "") +
+                    (task.deadline
+                        ? " | Deadline: " + task.deadline
+                        : "");
+
+                const tags = document.createElement("div");
+                tags.style.marginTop = "8px";
+
+                const statusTag = document.createElement("span");
+                statusTag.className = "tag";
+                statusTag.textContent = statusName[task.status];
+
+                const priorityTag = document.createElement("span");
+                priorityTag.className =
+                    "tag priority-" + task.priority;
+                priorityTag.textContent =
+                    priorityName[task.priority];
+
+                tags.append(statusTag, priorityTag);
+
+                info.append(heading, description, tags);
+
+                const actions = document.createElement("div");
+                actions.className = "task-actions";
+
+                const completeBtn = document.createElement("button");
+                completeBtn.className = "small-btn";
+                completeBtn.textContent =
+                    task.status === "done" ? "↩" : "✓";
+                completeBtn.title = "Đổi trạng thái hoàn thành";
+                completeBtn.onclick = () => toggleTask(task.id);
+
+                const editBtn = document.createElement("button");
+                editBtn.className = "small-btn";
+                editBtn.textContent = "Sửa";
+                editBtn.onclick = () => editTask(task.id);
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.className = "small-btn delete-btn";
+                deleteBtn.textContent = "Xóa";
+                deleteBtn.onclick = () => deleteTask(task.id);
+
+                actions.append(completeBtn, editBtn, deleteBtn);
+
+                div.append(info, actions);
+
+                container.appendChild(div);
+            });
+
+            updateStats();
+        }
+
+        // ================================
+        // 5. ADD / EDIT TASK
+        // ================================
+
+        function openModal() {
+
+            editingId = null;
+
+            document.getElementById("modalTitle").textContent =
+                "Thêm công việc";
+
+            document.getElementById("taskName").value = "";
+            document.getElementById("taskDescription").value = "";
+            document.getElementById("taskStatus").value = "todo";
+            document.getElementById("taskPriority").value = "medium";
+            document.getElementById("taskDeadline").value = "";
+
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+
+        function saveTask() {
+
+            const name = document
+                .getElementById("taskName").value.trim();
+
+            if (!name) {
+                alert("Vui lòng nhập tên công việc!");
+                return;
+            }
+
+            const task = {
+                id: editingId || Date.now(),
+                name: name,
+                description: document
+                    .getElementById("taskDescription").value.trim(),
+                status: document
+                    .getElementById("taskStatus").value,
+                priority: document
+                    .getElementById("taskPriority").value,
+                deadline: document
+                    .getElementById("taskDeadline").value
+            };
+
+            if (editingId) {
+
+                const index = tasks.findIndex(
+                    t => t.id === editingId
+                );
+
+                tasks[index] = task;
+
+            } else {
+
+                tasks.push(task);
+            }
+
+            saveData();
+            renderTasks();
+            closeModal();
+        }
+
+        // ================================
+        // 6. EDIT TASK
+        // ================================
+
+        function editTask(id) {
+
+            const task = tasks.find(t => t.id === id);
+
+            if (!task) return;
+
+            editingId = id;
+
+            document.getElementById("modalTitle").textContent =
+                "Chỉnh sửa công việc";
+
+            document.getElementById("taskName").value =
+                task.name;
+
+            document.getElementById("taskDescription").value =
+                task.description || "";
+
+            document.getElementById("taskStatus").value =
+                task.status;
+
+            document.getElementById("taskPriority").value =
+                task.priority;
+
+            document.getElementById("taskDeadline").value =
+                task.deadline || "";
+
+            document.getElementById("modal").style.display = "flex";
+        }
+
+        // ================================
+        // 7. DELETE TASK
+        // ================================
+
+        function deleteTask(id) {
+
+            if (!confirm("Bạn có chắc chắn muốn xóa công việc này?")) {
+                return;
+            }
+
+            tasks = tasks.filter(t => t.id !== id);
+
+            saveData();
+            renderTasks();
+        }
+
+        // ================================
+        // 8. COMPLETE TASK
+        // ================================
+
+        function toggleTask(id) {
+
+            const task = tasks.find(t => t.id === id);
+
+            if (!task) return;
+
+            task.status =
+                task.status === "done" ? "todo" : "done";
+
+            saveData();
+            renderTasks();
+        }
+
+        // ================================
+        // 9. FILTER & SEARCH
+        // ================================
+
+        document.getElementById("search")
+            .addEventListener("input", renderTasks);
+
+        document.getElementById("statusFilter")
+            .addEventListener("change", renderTasks);
+
+        document.getElementById("priorityFilter")
+            .addEventListener("change", renderTasks);
+
+        document.querySelectorAll(".nav-item")
+            .forEach(item => {
+
+                item.addEventListener("click", () => {
+
+                    document.querySelectorAll(".nav-item")
+                        .forEach(nav => nav.classList.remove("active"));
+
+                    item.classList.add("active");
+
+                    currentFilter = item.dataset.filter;
+
+                    document.getElementById("statusFilter").value = "all";
+
+                    document.getElementById("listTitle").textContent =
+                        item.textContent.trim();
+
+                    renderTasks();
+                });
+            });
+
+        // ================================
+        // 10. INITIALIZE
+        // ================================
+
+        renderTasks();
+
+    </script>
+
+</body>
+
+</html>
